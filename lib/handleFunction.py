@@ -2,6 +2,22 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def get_oil_price():
+    rs = requests.session()
+    res = rs.get('https://www.investing.com/commodities/crude-oil', verify=False)
+    soup = BeautifulSoup(res.text, 'html.parser')
+    price = soup.find('div', attrs={'data-test': 'instrument-price-last'})
+    price_change = soup.find('span', attrs={'data-test': 'instrument-price-change'})
+    price_percent = soup.find('span', attrs={'data-test': 'instrument-price-change-percent'})
+    content = 'crude-oil : '
+    content += price.contents[0] if price is not None else ''
+    content += ('_'+price_change.contents[0]) if price_change is not None else ''
+    if(price_percent is not None):
+        for cont in price_percent.contents:
+            content += cont
+    return content
+
+
 def ptt_beauty():
     rs = requests.session()
     res = rs.get('https://www.ptt.cc/bbs/Beauty/index.html', verify=False)

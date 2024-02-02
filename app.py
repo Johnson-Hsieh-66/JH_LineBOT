@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 configuration = Configuration(access_token=os.environ.get('CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.environ.get('CHANNEL_SECRET'))
-
+strUserId = os.environ.get('LineUserId')
 
 @app.route("/")
 def home():
@@ -41,9 +41,9 @@ def callback():
 def handle_message(event):
     print("event.reply_token:", event.reply_token)
     print("event.message.text:", event.message.text)
-    content = event.source.user_id#event.message.text
-    # if event.message.text == "@PTT":
-    #     content = handleFunction.ptt_beauty()
+    content = event.message.text
+    if event.message.text == "@PTT":
+        content = 'PTT'
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
@@ -60,12 +60,11 @@ def push_message():
     with ApiClient(configuration) as api_client:
         # Create an instance of the API class
         api_instance = MessagingApi(api_client)
-        push_message_request = PushMessageRequest(to='',messages=[TextMessage(text='PUSH!')])
-        x_line_retry_key = 'TEST123ABC456'
+        push_message_request = PushMessageRequest(to=strUserId, messages=[TextMessage(text=handleFunction.get_oil_price())])
         try:
-            api_response = api_instance.push_message(push_message_request, x_line_retry_key=x_line_retry_key)
+            api_response = api_instance.push_message(push_message_request)
             print("The response of MessagingApi->push_message:\n")
-            pprint(api_response)
+            #pprint(api_response)
         except Exception as e:
             print("Exception when calling MessagingApi->push_message: %s\n" % e)
 
