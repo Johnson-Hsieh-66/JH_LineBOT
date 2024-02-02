@@ -4,8 +4,11 @@ from linebot.v3 import (WebhookHandler)
 from linebot.v3.exceptions import (InvalidSignatureError)
 from linebot.v3.messaging import (Configuration, ApiClient, MessagingApi, ReplyMessageRequest, TextMessage)
 from linebot.v3.webhooks import (MessageEvent, TextMessageContent)
+from linebot.v3.messaging.models.push_message_request import PushMessageRequest
+from linebot.v3.messaging.models.push_message_response import PushMessageResponse
+from linebot.v3.messaging.rest import ApiException
+from pprint import pprint
 from lib import handleFunction
-
 
 app = Flask(__name__)
 
@@ -14,8 +17,8 @@ handler = WebhookHandler(os.environ.get('CHANNEL_SECRET'))
 
 
 @app.route("/")
-def index():
-    return "Hello world"
+def home():
+    return 'test'
 
 
 @app.route("/callback", methods=['POST'])
@@ -38,9 +41,9 @@ def callback():
 def handle_message(event):
     print("event.reply_token:", event.reply_token)
     print("event.message.text:", event.message.text)
-    content = event.message.text
-    if event.message.text == "PTT":
-        content = handleFunction.ptt_beauty()
+    content = event.source.user_id#event.message.text
+    # if event.message.text == "@PTT":
+    #     content = handleFunction.ptt_beauty()
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
@@ -49,6 +52,22 @@ def handle_message(event):
                 messages=[TextMessage(text=content)]
             )
         )
+
+
+@app.route("/push")
+def push_message():
+    # Enter a context with an instance of the API client
+    with ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = MessagingApi(api_client)
+        push_message_request = PushMessageRequest(to='',messages=[TextMessage(text='PUSH!')])
+        x_line_retry_key = 'TEST123ABC456'
+        try:
+            api_response = api_instance.push_message(push_message_request, x_line_retry_key=x_line_retry_key)
+            print("The response of MessagingApi->push_message:\n")
+            pprint(api_response)
+        except Exception as e:
+            print("Exception when calling MessagingApi->push_message: %s\n" % e)
 
 
 if __name__ == "__main__":
