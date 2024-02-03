@@ -54,13 +54,19 @@ def handle_message(event):
         )
 
 
-@app.route("/push")
-def push_message():
+@app.route("/pushMessage/getCrudeOil")
+def getCrudeOil():
+    content = handleFunction.getOilPrice()
+    push_message(content)
+    return content
+
+
+def push_message(content):
     # Enter a context with an instance of the API client
     with ApiClient(configuration) as api_client:
         # Create an instance of the API class
         api_instance = MessagingApi(api_client)
-        push_message_request = PushMessageRequest(to=strUserId, messages=[TextMessage(text=handleFunction.get_oil_price())])
+        push_message_request = PushMessageRequest(to=strUserId, messages=[TextMessage(text=content)])
         try:
             api_response = api_instance.push_message(push_message_request)
             print("The response of MessagingApi->push_message:\n")

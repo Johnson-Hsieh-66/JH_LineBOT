@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_oil_price():
+def getOilPrice():
     rs = requests.session()
     res = rs.get('https://www.investing.com/commodities/crude-oil', verify=False)
     soup = BeautifulSoup(res.text, 'html.parser')
