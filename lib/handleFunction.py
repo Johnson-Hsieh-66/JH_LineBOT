@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from Models import StockModel
 
 
 def getOilPrice():
@@ -7,15 +8,30 @@ def getOilPrice():
     res = rs.get('https://www.investing.com/commodities/crude-oil', verify=False)
     soup = BeautifulSoup(res.text, 'html.parser')
     price = soup.find('div', attrs={'data-test': 'instrument-price-last'})
-    price_change = soup.find('span', attrs={'data-test': 'instrument-price-change'})
-    price_percent = soup.find('span', attrs={'data-test': 'instrument-price-change-percent'})
+    priceChange = soup.find('span', attrs={'data-test': 'instrument-price-change'})
+    pricePercent = soup.find('span', attrs={'data-test': 'instrument-price-change-percent'})
     content = 'crude-oil : '
     content += price.contents[0] if price is not None else ''
-    content += ('_'+price_change.contents[0]) if price_change is not None else ''
-    if(price_percent is not None):
-        for cont in price_percent.contents:
+    content += ('_'+priceChange.contents[0]) if priceChange is not None else ''
+    if pricePercent is not None:
+        for cont in pricePercent.contents:
             content += cont
     return content
+
+
+def getStockInfos(listStock):
+    listStockInfo = []
+    content = ''
+    for strStock in listStock:
+        stockInfo = StockModel.StockInfo()
+        stockInfo.getStockInfo(strStock)
+        if stockInfo is not None:
+            listStockInfo.append(stockInfo)
+            content += stockInfo.getInfoString() + '\n'
+    return content
+
+
+
 
 
 def ptt_beauty():

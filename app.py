@@ -16,9 +16,20 @@ configuration = Configuration(access_token=os.environ.get('CHANNEL_ACCESS_TOKEN'
 handler = WebhookHandler(os.environ.get('CHANNEL_SECRET'))
 strUserId = os.environ.get('LineUserId')
 
-@app.route("/")
-def home():
-    return 'test'
+
+@app.route("/pushMessage/getCrudeOil")
+def getCrudeOil():
+    content = handleFunction.getOilPrice()
+    push_message(content)
+    return content
+
+
+@app.route("/pushMessage/getStockInfos")
+def getStockInfos():
+    listStock = ['2330', '2317']
+    content = handleFunction.getStockInfos(listStock)
+    push_message(content)
+    return content
 
 
 @app.route("/callback", methods=['POST'])
@@ -52,13 +63,6 @@ def handle_message(event):
                 messages=[TextMessage(text=content)]
             )
         )
-
-
-@app.route("/pushMessage/getCrudeOil")
-def getCrudeOil():
-    content = handleFunction.getOilPrice()
-    push_message(content)
-    return content
 
 
 def push_message(content):
